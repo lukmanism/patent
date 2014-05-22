@@ -1,0 +1,93 @@
+html{
+	font-size: 30px!important;	
+	font-family: arial;
+}
+
+text, div, p{
+	font-size: 1em!important;
+}
+h1 {
+	font-size: 2em!important;	
+	font-weight: 1000;
+}
+h2 {
+	font-size: 1.6em!important;	
+	font-weight: 500;
+}
+
+.container {
+	width: 90%;
+	margin: 0px auto 40px auto;
+}
+#state {
+        width: 100%;
+        margin: 0px;
+        padding: 0px
+}
+.chartview {
+	min-height: 300px;
+	height: auto;
+}
+#survey.chartview {
+	height: 250px!important;
+}
+.survey {
+	background-image: url('../images/pencil.png');
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+.state {
+	background-image: url('../images/blank_malaysia_map.png');
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+.msic {
+	background-image: url('../images/testimonials.png');
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+.piechartsumm {
+	height: 250px;	
+}
+.bullet {
+	width: 24px;
+	height: 24px;
+}
+.refresh {
+	width: 26px!important;
+	height: 26px;
+	font-size: 10px;
+	text-align: center;
+	margin: 0px;
+	padding: 0px;
+}
+.legendAssist {
+	font-size: 11px;
+	margin: 0 auto;
+}
+.row .title{
+	font-weight: 600;
+	line-height: 28px;
+	font-size: 14px;
+}
+.page-header {
+	position: relative;
+}
+.glyphicon-refresh {
+	position: absolute;
+	top: 0px;
+	right: 10px;
+}
+
+.row .male, .row .female {
+	height: 32px;
+	line-height: 32px;
+	text-indent: 30px;
+	background-repeat: no-repeat;
+	background-position: left;
+}
+
+
+#cluster text {
+	text-align: right;
+}

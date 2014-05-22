@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi-IPO</title>
+	<meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
+	<link href="css/kendo.dataviz.min.css" rel="stylesheet">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/style.css">
+
+
+</head>
+<body>
+	
+<div class="container">
+
+<div class="page-header">
+	<h1>Patent</h1>
+	<button class="btn btn-sm btn-default glyphicon glyphicon-refresh refresh" type="button"></button>
+</div>
+	
+
+	<div class="panel-heading"><h2>Total IP</h2></div>
+	<div class="row status">
+		<div><p class="chartview" id="status"></p></div>
+	</div>
+
+
+	<div class="panel-heading"><h2>Yearly Result</h2></div>
+	<div class="row yearly">
+		<div><p class="chartview" id="yearly"></p></div>
+	</div>	
+
+	<div class="panel-heading cluster-heading"><h2>2014 Cluster</h2></div>
+	<div class="row cluster">
+		<div><p class="chartview" id="cluster"></p></div>
+	</div>	
+
+
+	<div class="panel-heading department-heading"><h2>Departments</h2></div>
+	<div class="row department">
+		<div><p class="chartview" id="department"></p></div>
+	</div>	
+
+ 		
+	<div class="panel-heading division-heading"><h2>Division</h2></div>
+	<div class="row division">
+		<div><p class="chartview" id="division"></p></div>
+	</div>	 
+
+
+</div>
+
+	<script src="js/jquery-1.9.1.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<script src="js/jquery.ui.touch-punch.min.js"></script>
+	<script src="js/kendo.dataviz.min.js"></script>
+	<script src='js/psMathStats.min.js'></script>
+	<script src='js/pusher.color.min.js'></script>
+    <script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	
+	var loaddata;
+	window.filterHistory = [];
+	window.column = [
+		"cluster", "department", "division"
+	],
+	window.fieldsFormat = {
+		approved: { type: "number" },
+		filed: { type: "number" },
+		reject: { type: "number" },
+		name: { type: "string" },
+		year: { type: "string" },
+		id: { type: "id" }
+	};
+
+	window.list = {
+		'cluster': [
+			"Industrial Electronics Technology", "Information Communication Technologies", "MIMOS", "MIMOS Operations", "Nano Semiconductor Technology", "No Information", "Strategic Advanced Research (StAR)"
+		],
+		'department': [
+			"Mechanical & Human Factor Development", "Nanoelectronics and Photonics Lab", "Product Development", "Accelerative Technology Lab", "Advanced Computing Lab", "Advanced Informatics Arch. Dev", "Information Security Lab", "Knowledge Technology", "Network Base VTPM", "Software Development (PII)", "Software Development Lab - KHTP", "System Infostructure& Deployment Eng", "Wireless Communications", "Wireless Software Development Lab", "No Information", "Mathematical Modeling Lab", "Product & System Architecture", "Software Development (P I)", "Software Engineering", "Solution Framework Solutions", "MIMOS", "Corporate & Marketing Communications", "Corporate Strategy", "Product Quality & Reliability Engrg", "Program Mgt Office/Corporate Quality", "Integrated Circuit Development", "Wafer Fab- Product NPI & DC", "Wafer Fab-Fab Engineering Operation", "Wafer Fab-Technology Development", "Cryptography Lab", "Psychometrics", "Research Strategy and Engagement", "Strategic Advanced Research (StAR)"
+		],
+		'division': [
+			"Accelerative Technology Lab", "Adaptive Authentication", "Advance Mechanical Design & Analysis", "Advanced Computing Lab", "Advanced Informatics Arch. Dev", "AMS Architecture & Design", "App. Dev. (SAAS/PA)", "App. Dev. Group (Platform/SCM)", "App.Dev. Group (UX/ISP/GPU)", "App.Dev. Group (Workflows/HRIS)", "Artificial Intelligence", "ASIC Architecture & Design", "Authentication Methods", "Corporate Performance", "Corporate Strategy", "CPE& Firmware Dev. Grp", "Cryptography Lab", "Decision Support& Model Platform", "Deployment & Maintenance", "Document Control", "DSP Development Group", "FPGA & System Prototyping", "Graphics & Printing", "H/W & Rel. Lab", "Image Processing", "Image Understanding", "Imaging Technology", "Industrial Design", "Industry Development & Consultancy", "Information Fusion", "Information Security Lab", "Integrated Circuit Development", "Internet of Things", "IPMS-Operation", "ITIL Automation", "Kernel Development", "Knowledge Engineering Platform Dev", "Knowledge Representation & Reasoning", "Knowledge Technology", "KT-Knowledge Analytics and Discovery", "KT-Knowledge Level Interaction", "Linux Kernel", "Marketing Communications", "Mask Design & CAD Support", "Mathematical Modeling Lab", "Mechanical & Human Factor Development", "Mechanical Engineering Design", "MIMOS", "Mktg Com-Exhibition& Marketing Events", "Mobile Platform", "MOH SMRP", "Multimedia", "Multimedia Production", "NAPL-Agriculture,Aquaculture&Food Sensrs", "NAPL-Electrochemical Lab", "NAPL-Environmental Sensors", "NAPL-Medical and Healthcare Sensors", "NAPL-Nanoelectronics Lab", "NAPL-Photonics Lab", "NAPL-Process Tech & Tech Realization", "Network Base VTPM", "Network Protocol", "No Information", "Pattern Recognition", "PHY/MAC Protocol", "Prod Dev-Special App Realization Group", "Product Development-Analog", "Product Development-Digital", "Product Development-Electronic Platform", "Product Development-Firmware", "Product Development-MOL Support", "Product Development-PCB", "Product Development-RF Engineering", "Product Development-Wireless", "Product Quality & Reliability Engrg", "Product&System Arch -Wireless Network", "Product&System Arch -WSN/PA/Aqua", "PSA-System Architecture & Benchmarking", "Psychological Testing Centre", "Psychometrics", "RSE-IP Management", "RSE-Research Strategy", "SDPII-Data Modelling", "SDPII-Enterprise Mobility Platform", "SDPII-Enterprise Serv Bus Platform &Arch", "SDPII-ETL Platform & Enterprise Applictn", "SDPII-Financial Solution", "SDPII-Integrated Web Appliction Platform", "SDPII-Intgrtd Mobility Platform & IM Dev", "Security Profile", "SIDE- Infostructure  Engineering", "Software Deployment System", "Software Development (P I)", "Software Development (PII)", "Software Development Lab - KHTP", "Software Engineering", "Software System Development", "Solution Framework Solutions", "Strategic Advanced Research (StAR)", "System Infostructure& Deployment Eng", "System Programming Centre", "Test R&D", "Trusted Computing", "Usability", "Video Biometric Authentication", "Video Production", "Wafer Fab - Design Kit Device Modelling", "Wafer Fab - Process Integration", "Wafer Fab -Equipment&Process Engineering", "Wafer Fab- Product NPI & DC", "Wafer Fab-Diffusion Module", "Wafer Fab-Etch Module", "Wafer Fab-Litho Module", "Wafer Fab-Thin Film Module", "Web Application", "Windows Kernel", "Wireless Communications", "WSDL-Collaborative Content", "WSDL-Embedded Development", "WSDL-Release Management", "WSDL-System Architecture"
+		]
+	}
+
+
+	
+
+	$.ajax({
+			async: false,
+			url: "../data/ipo.json", // fetching webservice
+			beforeSend: function(xhr) {}
+		}).done(function(data) {
+			loaddata = data;
+	});
+
+    var yearly = {    	
+	    y2011: {approved:[], filed:[], reject:[]}, 
+	    y2012: {approved:[], filed:[], reject:[]}, 
+	    y2013: {approved:[], filed:[], reject:[]}, 
+	    y2014: {approved:[], filed:[], reject:[]}
+    },
+    cluster = [],
+    thatstatus = {approved:[], filed:[], reject:[]},
+    pushData = [];
+
+	$.each(loaddata, function(k1,v1){
+		var year = yearlyKey(v1.year);
+		var statust = statusKey(v1.status);
+			
+		$.each(column, function(k2,v2){
+			var id = getKey(v1[v2],list[v2]);
+			if(typeof pushData[k2] == 'undefined'){pushData[k2] = []}
+			if(typeof pushData[k2][id] == 'undefined'){pushData[k2][id] = {'d':[], 'pid':[]}}
+			if(typeof pushData[k2][id]['d'][year] == 'undefined'){pushData[k2][id]['d'][year] = {approved:[], filed:[], reject:[]};}
+
+			pushData[k2][id]['d'][year][statust].push(v1.total);
+			var that = column[(k2)-1];
+			var pid = (typeof getKey(v1[that],list[that]) == 'undefined')? -1: getKey(v1[that],list[that]);
+			pushData[k2][id]['pid'] = pid;
+		});		
+		thatstatus[statust].push(statusVal(v1.status, v1.total));
+		yearly[year][statust].push(statusVal(v1.status, v1.total));
+
+	});
+
+	statusChart(thatstatus);
+	yearlyChart(yearly);
+
+	var year = 2011;
+	var clusterSet = clusterChart(pushData[0], year);
+	var departmentSet = departmentChart(pushData[1], year, clusterSet);
+	divisionChart(pushData[2], year, departmentSet);
+
+
+
+
+
+function clusterChart(data, year){
+	window.clusterDataSession = (data != '')? data : clusterDataSession;
+	
+	var clusterTemp = [], idTemp = [];
+	$.each(clusterDataSession, function(k,v){
+		var val = v['d']['y'+year];
+		if(typeof val != 'undefined'){
+			clusterTemp.push({
+				"name" : list['cluster'][k],
+				"approved" : ((typeof val.approved != 'undefined')? val.approved.sum(): 0),
+				"filed" : ((typeof val.filed != 'undefined')? val.filed.sum(): 0),
+				"reject" : ((typeof val.reject != 'undefined')? val.reject.sum(): 0),
+				"year" : year,
+				"id" : k
+			});
+			idTemp.push(k);
+		}
+	});
+
+	var clusterData = new kendo.data.DataSource({
+	    data: clusterTemp,
+	    schema: {
+	        model: {
+	            fields: fieldsFormat
+	        }
+	    }
+    });
+
+	$("#cluster").kendoChart({
+		theme: "flat",
+		dataSource: clusterData,
+		legend: {
+			position: "top"
+		},
+		seriesDefaults: {
+			type: "bar",
+			stack: true,
+        	overlay: {gradient: "none"}
+		},
+		series:
+			[{
+				field: "approved",
+				name: "Approved"
+			}, {
+				field: "filed",
+				name: "Filed"
+			}, {
+				field: "reject",
+				name: "Reject/KIV"
+			}],
+		categoryAxis: {
+			field: "name",
+				majorGridLines: {
+					visible: false
+				}
+		},
+		valueAxis: {
+			labels: {
+				format: "N0"
+			},
+			line: {
+				visible: false
+			}
+		},
+		tooltip: {
+			visible: true,
+			format: "N0"
+		},
+		seriesClick: function(e) {
+			// console.log(e)
+			var departmentSet = departmentChart('', +e.dataItem.year, e.dataItem.id, e.category)
+			divisionChart(cluster, +e.dataItem.year, departmentSet);
+		},
+		labels: {
+			visible: false,
+			background: "transparent",
+			template: "#= category #",
+			font: "14px Arial"
+		}
+	});
+	$(".cluster-heading h2").html(year+" Cluster");
+	return idTemp;
+}
+
+
+function departmentChart(data, year, parentId, cluster){
+	console.log(data, year, parentId, cluster)
+
+	window.departmentDataSession = (data != '')? data : departmentDataSession;
+
+	// console.log(year, parentId, departmentDataSession)
+
+	var thisData = [], idTemp = [];
+	var getYear = 'y'+year;
+	var multi = (typeof parentId == 'object')? true:false;
+
+	$.each(departmentDataSession, function(k,v){
+	// console.log(k,v,v['d'])
+		var val = v['d']['y'+year];
+		if(multi){
+			if(typeof val != 'undefined' && $.inArray(v['pid'], parentId)){
+				thisData.push({
+					"name" : list['department'][k],
+					"approved" : ((typeof val.approved != 'undefined')? val.approved.sum(): 0),
+					"filed" : ((typeof val.filed != 'undefined')? val.filed.sum(): 0),
+					"reject" : ((typeof val.reject != 'undefined')? val.reject.sum(): 0),
+					"year" : year,
+					"id" : k
+				});
+				idTemp.push(k);
+			}			
+		} else {
+			if(typeof val != 'undefined' && v['pid'] == parentId){
+				thisData.push({
+					"name" : list['department'][k],
+					"approved" : ((typeof val.approved != 'undefined')? val.approved.sum(): 0),
+					"filed" : ((typeof val.filed != 'undefined')? val.filed.sum(): 0),
+					"reject" : ((typeof val.reject != 'undefined')? val.reject.sum(): 0),
+					"year" : year,
+					"id" : k
+				});
+				idTemp.push(k);
+			}	
+
+		}
+	});
+
+	var departmentData = new kendo.data.DataSource({
+	    data: thisData,
+	    schema: {
+	        model: {
+	            fields: {
+	                approved: { type: "number" },
+	                filed: { type: "number" },
+	                reject: { type: "number" },
+	                name: { type: "string" },
+	                year: { type: "string" }
+	            }
+	        }
+	    }
+    });	
+
+	$("#department").kendoChart({
+		theme: "flat",
+		dataSource: departmentData,
+		legend: {
+			position: "top"
+		},
+		seriesDefaults: {
+			type: "bar",
+			stack: true,
+        	overlay: {gradient: "none"}
+		},
+		series:
+			[{
+				field: "approved",
+				name: "Approved"
+			}, {
+				field: "filed",
+				name: "Filed"
+			}, {
+				field: "reject",
+				name: "Reject/KIV"
+			}],
+		categoryAxis: {
+			field: "name",
+				majorGridLines: {
+					visible: false
+				}
+		},
+		valueAxis: {
+			labels: {
+				format: "N0"
+			},
+			line: {
+				visible: false
+			}
+		},
+		tooltip: {
+			visible: true,
+			format: "N0"
+		},
+		seriesClick: function(e) {
+			// var departmentSet = departmentChart('', +e.dataItem.year, e.dataItem.id, e.category)
+			// divisionChart(cluster, +e.dataItem.year, departmentSet);
+            // console.log(e)
+			divisionChart('', +e.dataItem.year, e.dataItem.id, e.category);
+		},
+		labels: {
+			visible: false,
+			background: "transparent",
+			template: "#= category #",
+			font: "14px Arial"
+		}
+	});
+	cluster = (typeof cluster == 'undefined')? ' Cluster': ' '+cluster;
+	$(".department-heading h2").html("Departments From "+year+cluster);
+	return idTemp;
+}
+
+
+function divisionChart(data, year, parentId, department){
+
+	window.divisionDataSession = (data != '')? data : divisionDataSession;
+
+	var thisData = [], idTemp = [];
+	var getYear = 'y'+year;
+	var multi = (typeof parentId == 'object')? true:false;
+
+	$.each(divisionDataSession, function(k,v){
+	// console.log(k,v,v['d'])
+		var val = v['d']['y'+year];
+		if(multi){
+			if(typeof val != 'undefined' && $.inArray(v['pid'], parentId)){
+				thisData.push({
+					"name" : list['division'][k],
+					"approved" : ((typeof val.approved != 'undefined')? val.approved.sum(): 0),
+					"filed" : ((typeof val.filed != 'undefined')? val.filed.sum(): 0),
+					"reject" : ((typeof val.reject != 'undefined')? val.reject.sum(): 0),
+					"year" : year,
+					"id" : k
+				});
+				idTemp.push(k);
+			}			
+		} else {
+			if(typeof val != 'undefined' && v['pid'] == parentId){
+				thisData.push({
+					"name" : list['division'][k],
+					"approved" : ((typeof val.approved != 'undefined')? val.approved.sum(): 0),
+					"filed" : ((typeof val.filed != 'undefined')? val.filed.sum(): 0),
+					"reject" : ((typeof val.reject != 'undefined')? val.reject.sum(): 0),
+					"year" : year,
+					"id" : k
+				});
+				idTemp.push(k);
+			}	
+
+		}
+	});	
+
+
+	var departmentData = new kendo.data.DataSource({
+	    data: thisData,
+	    schema: {
+	        model: {
+	            fields: {
+	                approved: { type: "number" },
+	                filed: { type: "number" },
+	                reject: { type: "number" },
+	                name: { type: "string" },
+	                year: { type: "string" }
+	            }
+	        }
+	    }
+    });	
+
+	$("#division").kendoChart({
+		theme: "flat",
+		dataSource: departmentData,
+		legend: {
+			position: "top"
+		},
+		seriesDefaults: {
+			type: "bar",
+			stack: true,
+        	overlay: {gradient: "none"}
+		},
+		series:
+			[{
+				field: "approved",
+				name: "Approved"
+			}, {
+				field: "filed",
+				name: "Filed"
+			}, {
+				field: "reject",
+				name: "Reject/KIV"
+			}],
+		categoryAxis: {
+			field: "name",
+				majorGridLines: {
+					visible: false
+				}
+		},
+		valueAxis: {
+			labels: {
+				format: "N0"
+			},
+			line: {
+				visible: false
+			}
+		},
+		tooltip: {
+			visible: true,
+			format: "N0"
+		},
+		seriesClick: function(e) {
+            console.log(e)
+		},
+		labels: {
+			visible: false,
+			background: "transparent",
+			template: "#= category #",
+			font: "14px Arial"
+		}
+	});
+	department = (typeof department == 'undefined')? ' Department': ' '+department;
+	$(".division-heading h2").html("Division From "+year+department);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function yearlyChart(data){
+	var yearlyTemp = [];
+	$.each(data, function(k,v){
+		yearlyTemp.push({
+			"name" : yearlyVal(k),
+			"approved" : ((typeof v.approved != 'undefined')? v.approved.sum(): 0),
+			"filed" : ((typeof v.filed != 'undefined')? v.filed.sum(): 0),
+			"reject" : ((typeof v.reject != 'undefined')? v.reject.sum(): 0),
+			"year" : +yearlyVal(k),
+			"id" : k
+		});
+	});
+
+	var yearlyData = new kendo.data.DataSource({
+	    data: yearlyTemp,
+	    schema: { 
+	        model: {
+	            fields: fieldsFormat
+	        }
+	    }
+    });
+
+	$("#yearly").kendoChart({
+		theme: "flat",
+		dataSource: yearlyData,
+		legend: {
+			position: "top"
+		},
+		seriesDefaults: {
+			type: "line",
+        	overlay: {gradient: "none"}
+		},
+		series:
+			[{
+				field: "approved",
+				name: "Approved"
+			}, {
+				field: "filed",
+				name: "Filed"
+			}, {
+				field: "reject",
+				name: "Reject/KIV"
+			}],
+		categoryAxis: {
+			field: "year",
+				majorGridLines: {
+					visible: false
+				}
+		},
+		valueAxis: {
+			labels: {
+				format: "N0"
+			},
+			line: {
+				visible: false
+			}
+		},
+		tooltip: {
+			visible: true,
+			format: "N0"
+		},
+		seriesClick: function(e) {
+			var clusterSet = clusterChart('', e.category);
+			var departmentSet = departmentChart('', e.category, clusterSet);
+			divisionChart('', e.category, departmentSet);
+		},
+		labels: {
+			visible: false,
+			background: "transparent",
+			template: "#= category #"
+		}
+	});
+}
+
+function statusChart(data){	
+	var statusData = new kendo.data.DataSource({
+	    data: [{
+	        "name" : "Approved",
+	        "total" : data.approved.sum()
+	    }, {
+	        "name" : "Filed",
+	        "total" : data.filed.sum()
+	    }, {
+	        "name" : "Reject/KIV",
+	        "total" : data.reject.sum()
+	    }],
+	    schema: {
+	        model: {
+	            fields: {
+	                total: { type: "number" },
+	                name: { type: "string" }
+	            }
+	        }
+	    }
+    });	
+	$('#status').kendoChart({
+		theme: "flat",
+		dataSource: statusData,
+		seriesDefaults: {
+			labels: {
+				visible: true,
+				background: "transparent",
+				template: "#=category#: #=value#",
+				font: "11px Arial"
+			},
+	        overlay: {gradient: "none"}
+		},
+		series: [{
+			field: "total",
+			categoryField: "name",
+			type: "pie"
+		}],
+		chartArea: {
+			background: "transparent"
+		},
+		legend: {
+			visible: false
+		},
+		tooltip: {
+			format: "Total Patents: {0}",
+			visible: false
+		},
+		seriesClick: function(e) {
+            // console.log(e)
+		},
+		labels: {
+			visible: false,
+			background: "transparent",
+			template: "#= category #",
+			font: "14px Arial"
+		}
+	});
+}
+
+
+
+
+
+function statusVal(a,b){			
+	if(a == "APPROVED")
+		return b;
+	if(a == "FILED")
+		return b;
+	if(a == "REJECT/KIV")
+		return b;
+}
+
+function statusKey(a){			
+	if(a == "APPROVED")
+		return 'approved';
+	if(a == "FILED")
+		return 'filed';
+	if(a == "REJECT/KIV")
+		return 'reject';
+}
+
+function yearlyKey(a){	
+	return 'y'+a;
+}
+
+function yearlyVal(a){	
+	return a.replace('y', '');
+}
+
+function clusterVal(a,b){
+	if($.inArray(a, list['cluster']) >= 0)
+		return b;
+}
+
+function clusterKey(a){
+	var b;
+	if($.inArray(a, list['cluster']) >= 0){
+		b = $.inArray(a, list['cluster']);
+	}
+	return b;
+}
+
+function departmentVal(a,b){
+	if($.inArray(a, departmentList) >= 0)
+		return b;
+}
+
+function departmentKey(a){	
+	var b;
+	if($.inArray(a, departmentList) >= 0){
+		b = $.inArray(a, departmentList);
+	}
+	return b;
+}
+
+function getVal(a,b,list){
+	if($.inArray(a, list) >= 0)
+		return b;
+}
+
+function getKey(a,list){	
+	var b;
+	if($.inArray(a, list) >= 0){
+		b = $.inArray(a, list);
+	}
+	return b;
+}
+
+function divisionVal(a,b){
+	if($.inArray(a, divisionList) >= 0)
+		return b;
+}
+
+function divisionKey(a){	
+	var b;
+	if($.inArray(a, divisionList) >= 0){
+		b = $.inArray(a, divisionList);
+	}
+	return b;
+}
+
+function validate(a,type){
+	if(typeof a != 'undefined'){
+		return 0;
+	}
+}
+
+	$('.refresh').click(function(){
+		location.reload();
+	});
+</script>
+
+</body>
+</html>
